@@ -15,7 +15,7 @@
     "incremental": true,
     "types": ["node"],
     "plugins": [{ "name": "next" }],
-    "baseUrl": ".",                    // 👈 imprescindible para que 'paths' funcione
+    "baseUrl": ".", // 👈 imprescindible para que 'paths' funcione
     "paths": {
       "@/*": ["./*"]
     }

@@ -17,7 +17,7 @@ export function registerSW() {
               console.log(
                 navigator.serviceWorker.controller
                   ? "[PWA] Nueva versión instalada."
-                  : "[PWA] SW instalado por primera vez."
+                  : "[PWA] SW instalado por primera vez.",
               );
             }
           });

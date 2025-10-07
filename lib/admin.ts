@@ -15,9 +15,7 @@ let adminApp: App;
 
 if (!getApps().length) {
   const jsonB64 = must("FIREBASE_SERVICE_ACCOUNT_B64");
-  const serviceAccount = JSON.parse(
-    Buffer.from(jsonB64, "base64").toString("utf8")
-  );
+  const serviceAccount = JSON.parse(Buffer.from(jsonB64, "base64").toString("utf8"));
 
   adminApp = initializeApp({
     credential: cert(serviceAccount),
