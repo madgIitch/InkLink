@@ -1,108 +1,98 @@
 // /app/api/search/route.ts
 import { NextResponse } from "next/server";
-import { z, type ZodIssue } from "zod";
-import { db } from "@/lib/firebaseAdmin"; // ✅ usa db (no getDb)
-import type { Firestore } from "firebase-admin/firestore";
-
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-type ArtistStyle =
-  | "blackwork"
-  | "fineline"
-  | "realism"
-  | "traditional"
-  | "neo-trad"
-  | "japanese"
-  | "dotwork"
-  | "watercolor"
-  | "lettering"
-  | "geometric"
-  | "minimal";
+import { db } from "@/lib/firebaseAdmin";
 
 export type ArtistPublic = {
   id: string;
   name: string;
-  city: string;
-  styles: ArtistStyle[];
-  lat: number;
-  lng: number;
-  rating: number;
+  city: string; // Sugerencia: mantener también cityLower en documento para búsquedas case-insensitive
+  styles: string[];
+  rating: number; // 0..5
 };
 
-const toKey = (s: string) => s.trim().toLowerCase();
-const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+// Util: clamp
+const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
 
-const QuerySchema = z.object({
-  city: z.string().trim().min(1, "city es obligatorio"),
-  style: z.string().trim().min(1, "style es obligatorio"),
-  limit: z
-    .string()
-    .optional()
-    .transform((v: string | undefined) => (v ? parseInt(v, 10) : 50))
-    .pipe(
-      z
-        .number()
-        .int()
-        .positive()
-        .transform((n: number) => clamp(n, 1, 100)),
-    ),
-});
-
-type UnknownDoc = Record<string, unknown> & { id?: unknown };
-
-function stripPrivate(doc: UnknownDoc): ArtistPublic {
-  return {
-    id: String(doc.id),
-    name: typeof doc.name === "string" ? doc.name : "",
-    city: typeof doc.city === "string" ? doc.city : "",
-    styles: Array.isArray(doc.styles) ? (doc.styles as ArtistStyle[]) : [],
-    lat: typeof doc.lat === "number" ? doc.lat : Number(doc.lat ?? 0),
-    lng: typeof doc.lng === "number" ? doc.lng : Number(doc.lng ?? 0),
-    rating: typeof doc.rating === "number" ? doc.rating : Number(doc.rating ?? 0),
-  };
+// Util: extraer mensaje de error sin usar `any`
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return "Internal error";
+  }
 }
 
 export async function GET(req: Request) {
-  const url = new URL(req.url);
-
-  const parsed = QuerySchema.safeParse({
-    city: url.searchParams.get("city"),
-    style: url.searchParams.get("style"),
-    limit: url.searchParams.get("limit") ?? undefined,
-  });
-
-  if (!parsed.success) {
-    const message =
-      parsed.error.issues.map((i: ZodIssue) => i.message).join(", ") || "Parámetros inválidos";
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
-
-  const { city, style, limit } = parsed.data;
-  const cKey = toKey(city);
-  const sKey = toKey(style);
-
   try {
-    if (!db) throw new Error("Firestore no inicializado");
-    const col = (db as Firestore).collection("artists");
+    const { searchParams } = new URL(req.url);
 
-    const qSnap = await col
-      .where("city_lc", "==", cKey)
-      .where("styles_lc", "array-contains", sKey)
-      .limit(limit)
-      .get();
+    const cityRaw = (searchParams.get("city") ?? "").trim();
+    const styleRaw = (searchParams.get("style") ?? "").trim();
+    const limitParam = Number.parseInt(searchParams.get("limit") ?? "20", 10);
 
-    const items = qSnap.docs.map(
-      (d): ArtistPublic =>
-        stripPrivate({ id: d.id, ...(d.data() as Record<string, unknown>) } as UnknownDoc),
-    );
+    // Normalización mínima (sin suponer case-insensitive si no existe cityLower en BD)
+    const city = cityRaw;
+    const style = styleRaw;
 
-    return NextResponse.json(items, {
-      status: 200,
-      headers: { "Content-Type": "application/json; charset=utf-8" },
+    // Validar y acotar `limit`
+    const limit = Number.isFinite(limitParam) ? clamp(limitParam, 1, 50) : 20;
+
+    // Exigir al menos un filtro para evitar full scans
+    if (!city && !style) {
+      return NextResponse.json(
+        { error: "Provide at least one filter: ?city=... or ?style=..." },
+        { status: 400 },
+      );
+    }
+
+    // Construcción de query
+    let q: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = db.collection("artists");
+
+    if (city) {
+      // Si guardas cityLower en tus documentos, usa esta línea:
+      // q = q.where("cityLower", "==", city.toLowerCase());
+      q = q.where("city", "==", city);
+    }
+    if (style) {
+      q = q.where("styles", "array-contains", style);
+    }
+
+    q = q.limit(limit);
+
+    const snap = await q.get();
+
+    // Mapear documentos a la forma pública
+    const artists: ArtistPublic[] = snap.docs.map((d) => {
+      const data = d.data() as {
+        name?: unknown;
+        city?: unknown;
+        styles?: unknown;
+        rating?: unknown;
+      };
+
+      const name = typeof data.name === "string" ? data.name : "Unknown";
+      const cityVal = typeof data.city === "string" ? data.city : "";
+      const stylesArr = Array.isArray(data.styles)
+        ? (data.styles.filter((s) => typeof s === "string") as string[])
+        : [];
+      const ratingNum = typeof data.rating === "number" ? data.rating : Number(data.rating ?? 0);
+
+      const item: ArtistPublic = {
+        id: d.id,
+        name,
+        city: cityVal,
+        styles: stylesArr,
+        rating: Number.isFinite(ratingNum) ? ratingNum : 0,
+      };
+
+      return item;
     });
-  } catch (err) {
-    console.warn("[/api/search] Fallback por error:", (err as Error)?.message);
-    return NextResponse.json([], { status: 200 });
+
+    return NextResponse.json({ artists }, { status: 200 });
+  } catch (err: unknown) {
+    console.error("[/api/search] error:", err);
+    return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
   }
 }

@@ -1,4 +1,4 @@
-// lib/firebaseAdmin.ts
+// /lib/firebaseAdmin.ts
 import { getApps, initializeApp, applicationDefault, cert } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
@@ -35,17 +35,18 @@ function parseServiceAccount(): ServiceAccountShape | null {
 function ensureInit(): void {
   if (_db) return;
 
-  // 1) Si hay GOOGLE_APPLICATION_CREDENTIALS (ruta al JSON), usamos applicationDefault()
   const hasGac = Boolean(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-
   if (getApps().length === 0) {
     if (hasGac) {
+      // Credenciales por GOOGLE_APPLICATION_CREDENTIALS (ruta al JSON)
       initializeApp({ credential: applicationDefault() });
     } else {
+      // Credenciales vía FIREBASE_SERVICE_ACCOUNT (base64) o variables sueltas
       const sa = parseServiceAccount();
       if (!sa) {
+        // ⛔ Sin credenciales no seguimos. Nada de datos mock.
         throw new Error(
-          "[firebaseAdmin] Faltan credenciales. Define GOOGLE_APPLICATION_CREDENTIALS o FIREBASE_SERVICE_ACCOUNT (base64) o FIREBASE_PROJECT_ID/EMAIL/PRIVATE_KEY.",
+          "[firebaseAdmin] Faltan credenciales. Define GOOGLE_APPLICATION_CREDENTIALS (ruta al JSON) o FIREBASE_SERVICE_ACCOUNT (base64) o FIREBASE_PROJECT_ID/FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY.",
         );
       }
       initializeApp({ credential: cert(sa) });
