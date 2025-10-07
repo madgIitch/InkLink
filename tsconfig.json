@@ -13,8 +13,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types": ["node"],             // 👈 añade esto
+    "types": ["node"],
     "plugins": [{ "name": "next" }],
+    "baseUrl": ".",                    // 👈 imprescindible para que 'paths' funcione
     "paths": {
       "@/*": ["./*"]
     }
