@@ -1,26 +1,48 @@
+/* Tailwind v4 */
 @import "tailwindcss";
+@source "../app/**/*.{ts,tsx}" "../components/**/*.{ts,tsx}";
 
+/* Fondo suave con blobs y grano ligero */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink-bg:
+    radial-gradient(1200px 600px at 0% 0%, rgba(83, 255, 210, 0.15), transparent 60%),
+    radial-gradient(900px 500px at 100% 10%, rgba(117, 164, 255, 0.18), transparent 60%),
+    radial-gradient(600px 600px at 50% 120%, rgba(255, 200, 130, 0.12), transparent 60%);
 }
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #f7f9fb 0%, #ffffff 50%, #f6f8ff 100%), var(--ink-bg);
+}
+
+/* Utilidades de “glass” */
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 10px 25px rgba(30, 60, 120, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 18px;
+}
+
+.input-glass {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+}
+
+/* Sustituye el bloque con @apply por: */
+.chip {
+  padding: 0.25rem 0.625rem; /* px-2.5 py-1 */
+  border-radius: 9999px; /* rounded-full */
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
+  background: rgba(255, 255, 255, 0.7);
+  color: #334155; /* text-slate-700 */
+}
+
+/* Estrellas (azul neón suave) */
+.star {
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.08));
 }
