@@ -1,3 +1,6 @@
+// types/db.ts
+
+// ---- Tipos de dominio ----
 export type ArtistStyle =
   | "blackwork"
   | "fineline"
@@ -11,6 +14,7 @@ export type ArtistStyle =
   | "geometric"
   | "minimal";
 
+// Artista completo (documento principal)
 export interface Artist {
   id: string; // doc id
   name: string;
@@ -21,6 +25,17 @@ export interface Artist {
   rating: number; // 0..5
 }
 
+// Ítems del portfolio (subcolección de artist)
+export interface PortfolioItem {
+  id: string;
+  imageUrl: string;
+  title?: string;
+  description?: string;
+  tags: string[];
+  createdAt?: Date;
+}
+
+// Usuario de la app
 export type UserRole = "client" | "artist";
 
 export interface AppUser {
@@ -31,6 +46,5 @@ export interface AppUser {
   favorites: string[]; // artist ids
 }
 
-export type ArtistCard = Pick<Artist, "name" | "city" | "styles" | "rating"> & {
-  id: string;
-};
+// Tarjeta ligera para listados/búsqueda
+export type ArtistCard = { id: string } & Pick<Artist, "name" | "city" | "styles" | "rating">;
