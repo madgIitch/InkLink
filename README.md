@@ -1,6 +1,6 @@
 # InkLink
 
-Mobile app built with React Native (Expo) and Supabase.
+Mobile app built with React Native (Expo) and Firebase.
 
 ## Prerequisites
 
@@ -18,9 +18,15 @@ npm install
 
 2. Configure environment variables:
 - Copy `.env.example` to `.env`
-- Add your Supabase credentials:
-  - `EXPO_PUBLIC_SUPABASE_URL`
-  - `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+- Enable Authentication (Email/Password) and Firestore in your Firebase project
+- Add your Firebase credentials to `.env`:
+  - `EXPO_PUBLIC_FIREBASE_API_KEY`
+  - `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`
+  - `EXPO_PUBLIC_FIREBASE_PROJECT_ID`
+  - `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`
+  - `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+  - `EXPO_PUBLIC_FIREBASE_APP_ID`
 
 ## Development
 
@@ -57,7 +63,7 @@ npm run format
 
 ```
 src/
-├── config/          # App configuration (env, supabase)
+├── config/          # App configuration (env, firebase)
 ├── features/        # Feature modules
 │   ├── auth/        # Authentication
 │   └── home/        # Home feature
@@ -76,7 +82,7 @@ src/
 - [x] Sprint 0 - Setup completed
   - [x] React Native + Expo + TypeScript
   - [x] Feature-based folder structure
-  - [x] Supabase configuration
+  - [x] Firebase configuration (Auth, Firestore, Storage)
   - [x] Environment variables
   - [x] Base UI components (Button, Input, Screen)
   - [x] Theme and design tokens
