@@ -1,149 +1,211 @@
-# InkLink Mobile – Plan de Proyecto (React Native)
+# Plan de Desarrollo - MVP Mobile App
 
-InkLink Mobile es una aplicación nativa multiplataforma desarrollada en **React Native** cuyo propósito es ayudar a los usuarios a **descubrir tatuadores independientes**, filtrarlos por estilo, ubicación, disponibilidad y otros criterios relevantes.  
+## Sprint 0 (Setup) — 2–4 días
 
-El proyecto se organizará mediante **sprints ágiles semanales**, gestionados con **GitHub Projects**, siguiendo una estructura clara basada en épicas, historias de usuario, tareas técnicas y definición de hecho (DoD).  
+**Objetivo:** Dejar el proyecto listo para iterar rápido con calidad.
 
----
+### Entregables
 
-# 📅 Organización por Sprints
+- Repo + monorepo simple (opcional) + CI básico (lint/test/build)
+- React Native (ideal: Expo) + navegación base
+- Supabase project: DB + Auth + Storage habilitados
+- Entornos y configuración: `.env`, staging vs prod
+- Base UI: theme/tokens (aunque sea mínimo), componentes base (Button/Input/Screen)
+- Estructura de carpetas (feature-based)
 
-Cada sprint incluye:
-- 🧩 Epic (feature principal)
-- 🧠 Historias de usuario
-- 🔧 Tareas técnicas (issues)
-- ✅ Definition of Done (DoD)
-- 🕒 Duración estimada: 1 semana
+### DoD (Definition of Done)
 
-Este documento describe únicamente el **Sprint 0 (Setup)** replanificado para la versión móvil en React Native.
-
----
-
-# 🧭 SPRINT 0 — Setup del entorno y base de datos
-
-**Epic:** Preparar la infraestructura base para desarrollo móvil (React Native + Firebase + CI/CD)
-
-## 🧠 Historias de usuario
-
-- Como *equipo de desarrollo*, quiero una estructura limpia de proyecto para poder iterar con rapidez.
-- Como *usuario*, quiero que la app se ejecute correctamente en mi dispositivo desde el primer build.
-- Como *administrador*, quiero que la base de datos inicial esté configurada para almacenar tatuadores y usuarios.
+- [ ] App corre en iOS/Android simulador
+- [ ] Login screen "dummy" navegable
+- [ ] Supabase conectado y validado con un ping simple
 
 ---
 
-# 🔧 Tareas técnicas del Sprint 0 (con descripción)
+## Sprint 1 — Autenticación + Perfil mínimo (1 semana)
 
-## **0.1 — Inicializar proyecto React Native + TypeScript + Expo**
+**Objetivo:** Usuarios reales pueden entrar y tener identidad persistente.
 
-### Descripción
-Configurar el proyecto base utilizando **Expo + React Native + TypeScript** para disponer de un entorno estable, escalable y multiplataforma desde el primer día.
+### User Stories
 
-### Checklist
-- Crear proyecto con `npx create-expo-app inklink`.
-- Activar TypeScript y añadir `tsconfig.json`.
-- Crear estructura `/src` con carpetas de componentes, pantallas y navegación.
-- Añadir librerías esenciales:  
-  `react-navigation`, `expo-location`, `expo-image-picker`, `react-native-safe-area-context`.
+- Como usuario, quiero registrarme/iniciar sesión
+- Como usuario, quiero ver/editar mi perfil básico
+
+### Back/DB (Supabase)
+
+- Tabla `profiles` (1:1 con `auth.users`)
+- Trigger para auto-crear profiles al registrarse
+- RLS: cada usuario solo lee/escribe su perfil
+
+### App
+
+- Email/password auth (o magic link si encaja)
+- Pantallas: Register / Login / Forgot password / Profile
+- Validación de formularios + estados de carga/errores
 
 ### DoD
-- La app se ejecuta en emulador o dispositivo físico sin errores.
-- Estructura inicial creada y documentada.
+
+- [ ] RLS verificada (no se puede leer perfil ajeno)
+- [ ] Deep link de reset password funcionando (si aplica)
 
 ---
 
-## **0.2 — Integrar Firebase (Auth, Firestore, Storage)**
+## Sprint 2 — Core Feature v1 (Create + List) (1 semana)
 
-### Descripción
-Configurar la plataforma backend completa para gestión de usuarios, artistas, datos y almacenamiento de imágenes.
+**Objetivo:** Primer caso de uso real end-to-end.
 
-### Checklist
-- Crear proyecto en Firebase Console.
-- Añadir `firebase` en el proyecto React Native.
-- Configurar `firebaseConfig.ts`.
-- Inicializar Firestore, Auth y Storage.
-- Crear colecciones: `artists` y `users`.
+> Aquí defines tu "objeto principal": items, posts, listings, tasks, spots, etc.
+
+### User Stories
+
+- Como usuario, quiero crear un elemento
+- Como usuario, quiero ver listado de mis elementos (o feed simple)
+
+### Back/DB
+
+- Tabla principal `entities` + índices
+- Storage (si hay imagen): bucket + política + path por user
+- RLS por propiedad (`user_id`)
+
+### App
+
+- Create screen (form + upload opcional)
+- List screen (FlatList con paginación simple)
+- Detalle simple (tap en card)
 
 ### DoD
-- La app puede leer/escribir documentos básicos.
-- Firebase conectado sin warnings.
+
+- [ ] CRUD parcial: Create + Read listo
+- [ ] Performance aceptable en listas (paginación)
 
 ---
 
-## **0.3 — Crear la arquitectura de carpetas del proyecto**
+## Sprint 3 — Core Feature v2 (Update/Delete + UX) (1 semana)
 
-### Descripción
-Establecer un sistema de carpetas modular que escale con el producto.
+**Objetivo:** Cerrar el ciclo CRUD y mejorar usabilidad.
 
-### Checklist
-- Crear estructura sugerida:
-src/
-├── components/
-├── screens/
-├── navigation/
-├── services/
-├── hooks/
-├── theme/
-├── types/
-└── utils/
+### User Stories
 
-- Implementar `NavigationContainer` y un Stack base.
-- Añadir un tema inicial (colores, tipografías, estilos base).
+- Como usuario, quiero editar/eliminar mis elementos
+- Como usuario, quiero ver estados vacíos y feedback claro
+
+### Back/DB
+
+- Constraints y validaciones (no nulos, checks)
+- Opcional: soft delete (`deleted_at`) si te interesa
+
+### App
+
+- Edit screen (reutilizar formulario)
+- Delete con confirmación
+- UI states: empty, loading skeleton, error retry
+- Pull-to-refresh
 
 ### DoD
-- App inicial navega entre pantallas dummy.
-- El proyecto tiene las carpetas listas para escalar.
+
+- [ ] CRUD completo para el objeto principal
+- [ ] Flujos sin "pantallas rotas" (navegación consistente)
 
 ---
 
-## **0.4 — Añadir ESLint, Prettier y convenciones del equipo**
+## Sprint 4 — Descubrimiento/Interacción (según producto) (1 semana)
 
-### Descripción
-Garantizar la consistencia del código y evitar errores comunes desde el inicio.
+**Objetivo:** Convertir el MVP en "producto", no solo CRUD.
 
-### Checklist
-- Instalar `eslint`, `prettier`, `eslint-config-prettier`, `eslint-plugin-react`.
-- Configurar reglas en `.eslintrc.js`.
-- Añadir scripts:
-- `"lint": "eslint . --ext .ts,.tsx"`
-- `"format": "prettier --write ."`
-- (Opcional) Instalar `husky` para pre-commits automáticos.
+**Elige 1–2 de estas (no todas):**
+
+### Opción A: Búsqueda + filtros
+
+- Query por texto + filtros básicos (categoría, rango, tags)
+- Índices en DB para queries frecuentes
+
+### Opción B: Social básico
+
+- Likes/favs, guardados, o follow
+- Tabla `favorites` con RLS
+
+### Opción C: Comunicación
+
+- Chat básico con tabla `messages` + `conversations`
+- Realtime (solo si de verdad lo necesitas en MVP)
 
 ### DoD
-- `npm run lint` y `npm run format` funcionan sin errores.
+
+- [ ] La funcionalidad elegida funciona end-to-end con RLS sólida
 
 ---
 
-## **0.5 — Configurar CI/CD (Expo EAS o GitHub Actions)**
+## Sprint 5 — Calidad de producto (1 semana)
 
-### Descripción
-Automatizar builds de la aplicación para pruebas y distribución a testers.
+**Objetivo:** Preparar una beta real.
 
-### Checklist
-- Conectar repo GitHub a Expo EAS.
-- Configurar workflows automáticos:
-- Build Android
-- Build iOS
-- Deploy a testers
-- Añadir documentación básica en el README.
+### Incluye
+
+- Analítica mínima (eventos clave: signup, create, publish, etc.)
+- Crash/error reporting
+- Edge Functions (solo si necesitas lógica "server-side": pagos, notificaciones, moderación ligera)
+- Hardening de seguridad: revisar RLS, políticas de Storage, rate limiting (a nivel app y/o función)
+- Performance: caché ligera y reducción de llamadas redundantes
 
 ### DoD
-- Se puede generar un `.apk` o `.aab` de desarrollo.
-- CI/CD ejecuta builds sin fallos.
+
+- [ ] Checklist de release (permisos, secretos, RLS, builds reproducibles)
+- [ ] Beta interna lista
 
 ---
 
-## **0.6 — Sembrar datos iniciales en Firestore**
+## Sprint 6 — Pulido + Lanzamiento (opcional, 1 semana)
 
-### Descripción
-Poblar Firestore con artistas de prueba para validar búsquedas y prototipos UI.
+**Objetivo:** Cerrar lo necesario para publicar.
 
-### Checklist
-- Añadir 2–3 artistas ficticios con campos:
-```json
-{
-  "name": "Luna Vega Tattoo",
-  "city": "Barcelona",
-  "styles": ["realismo", "fine line"],
-  "rating": 4.9,
-  "images": ["https://.../1.jpg"]
-}
+### Tareas
+
+- Onboarding corto
+- Legal mínimo: términos/privacidad (si aplica)
+- Feedback in-app (form o email)
+- Preparar store listing (capturas, copy) si vas a stores
+
+---
+
+## Backlog
+
+> **Para NO meter en MVP**, pero tenerlo "aparcado"
+
+- Notificaciones push
+- Offline-first serio
+- Roles complejos (admin/moderator)
+- Recomendaciones / ranking
+- IA (si no es núcleo)
+- Multi-idioma
+- Pagos/subs
+
+---
+
+## Arquitectura Recomendada (simple y escalable)
+
+### Frontend
+
+- **React Native (Expo) + TypeScript**
+- **Estado:** React Query (tanstack) para data fetching/caché
+- **Navegación:** React Navigation
+- **UI:** Tu kit propio básico + tokens (o Tamagui / RN Paper si quieres velocidad)
+
+### Backend (Supabase)
+
+- **Auth**
+- **Postgres + RLS**
+- **Storage** (si imágenes)
+- **Edge Functions** solo para lo que no debe estar en cliente
+
+---
+
+## Plan de Entregas (Resumen)
+
+| Semana | Sprint | Enfoque |
+|--------|--------|---------|
+| **0** | Setup | Configuración inicial |
+| **1** | Auth + Profile | Autenticación y perfiles |
+| **2** | Core Create + List | Funcionalidad principal (parte 1) |
+| **3** | CRUD completo + UX | Funcionalidad principal (parte 2) |
+| **4** | Discovery o interacción clave | Diferenciación del producto |
+| **5** | Beta hardening | Calidad y seguridad |
+| **6** | Launch (opcional) | Lanzamiento |
