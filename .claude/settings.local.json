@@ -8,7 +8,8 @@
       "Bash(npm run format:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nSprint 0: Configuración inicial del proyecto React Native\n\n- Inicializar proyecto con Expo + TypeScript\n- Configurar estructura de carpetas feature-based\n- Implementar sistema de theming y design tokens\n- Configurar variables de entorno \\(.env\\)\n- Instalar y configurar dependencias:\n  * React Navigation \\(stack navigator\\)\n  * Supabase client\n  * ESLint + Prettier\n- Crear componentes base reutilizables \\(Button, Input, Screen\\)\n- Configurar navegación con pantallas Login y Home \\(dummy\\)\n- Agregar README con instrucciones de setup y desarrollo\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nMigrar de Supabase a Firebase\n\n- Desinstalar @supabase/supabase-js y react-native-url-polyfill\n- Instalar Firebase SDK \\(firebase, @react-native-firebase/*\\)\n- Instalar @react-native-async-storage/async-storage para persistencia\n- Actualizar variables de entorno \\(.env\\) con configuración de Firebase\n- Crear nueva configuración de Firebase \\(Auth, Firestore, Storage\\)\n- Eliminar configuración de Supabase\n- Actualizar README con instrucciones de Firebase\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

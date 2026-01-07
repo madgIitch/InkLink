@@ -16,11 +16,12 @@ Mobile app built with React Native (Expo) and Firebase.
 npm install
 ```
 
-2. Configure environment variables:
-- Copy `.env.example` to `.env`
+2. Configure Firebase:
 - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-- Enable Authentication (Email/Password) and Firestore in your Firebase project
-- Add your Firebase credentials to `.env`:
+- Add a **Web App** to your project (yes, web app - the Firebase Web SDK works on mobile with Expo)
+- Enable **Authentication** → Sign-in method → Email/Password
+- Create **Firestore Database** in test mode
+- Copy `.env.example` to `.env` and add your Firebase Web App credentials:
   - `EXPO_PUBLIC_FIREBASE_API_KEY`
   - `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`
   - `EXPO_PUBLIC_FIREBASE_PROJECT_ID`
