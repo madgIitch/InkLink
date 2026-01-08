@@ -4,8 +4,18 @@
  */
 
 export type RootStackParamList = {
+  // Auth Stack
+  Welcome: undefined;
   Login: undefined;
+  Register: undefined;
+
+  // Profile Setup
+  ProfileSetup: undefined;
+
+  // Main Stack
   Home: undefined;
+  Profile: undefined;
+  EditProfile: undefined;
 };
 
 declare global {
